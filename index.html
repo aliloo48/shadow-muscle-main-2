@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shadow Muscle</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#000000">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=4.0">
+</head>
+<body>
+  <div class="geom-shapes">
+    <div class="shape hex-1"></div>
+    <div class="shape hex-2"></div>
+    <div class="shape hex-3"></div>
+    <div class="shape hex-4"></div>
+    <div class="shape hex-5"></div>
+    <div class="shape tri-1"></div>
+    <div class="shape tri-2"></div>
+    <div class="shape square-1"></div>
+    <div class="shape square-2"></div>
+    <div class="shape line-1"></div>
+  </div>
+  <div id="app">
+    <header>
+      <h1>SHADOW MUSCLE</h1>
+    </header>
+    <nav class="tab-nav">
+      <button class="tab-btn active" data-tab="portails">⚔️ PORTAILS</button>
+      <button class="tab-btn" data-tab="statut">📊 STATUT</button>
+      <button class="tab-btn" data-tab="artefacts">💎 ARTEFACTS</button>
+      <button class="tab-btn" data-tab="grimoire">📖 GRIMOIRE</button>
+    </nav>
+    <div id="tab-portails" class="tab-panel active">
+      <section id="missions">
+        <h2>🌀 Portails à Fermer</h2>
+        <h3 class="mission-category daily">📅 Quotidiens</h3>
+        <div id="dailyMissions"></div>
+        <h3 class="mission-category weekly">🔥 Hebdomadaires</h3>
+        <div id="weeklyMissions"></div>
+        <h3 class="mission-category monthly">🏆 Mensuels</h3>
+        <div id="monthlyMissions"></div>
+        <h3 class="mission-category custom">⭐ Personnalisés</h3>
+        <div id="customMissions"></div>
+        <div class="mission-input-group">
+          <input type="text" id="newMission" placeholder="Nouvelle mission (ex: 50 pompes +2 force)">
+          <button id="addMission">Ajouter</button>
+        </div>
+        <button id="enableNotifs" class="notif-btn">🔔 Activer les notifications</button>
+      </section>
+    </div>
+    <div id="tab-statut" class="tab-panel">
+      <section id="status">
+        <h2>⚡ Statut du Chasseur</h2>
+        <div class="status-card">
+          <div class="status-item"><span class="status-label">NIVEAU</span><span class="status-value" id="currentLevel">1</span></div>
+          <div class="status-item"><span class="status-label">RANG</span><span class="status-value" id="rank">E - Débutant</span></div>
+          <div class="status-item"><span class="status-label">STREAK</span><span class="status-value">🔥 <span id="streakCount">0</span></span></div>
+        </div>
+        <div class="xp-container"><div id="xpBar"><div id="xpProgress"></div><span id="xpText">0 / 500 XP</span></div></div>
+        <h3>💪 Statistiques</h3>
+        <div class="stat-grid">
+          <div class="stat"><span>FORCE</span><span id="force">1</span></div>
+          <div class="stat"><span>ENDURANCE</span><span id="endurance">1</span></div>
+          <div class="stat"><span>MENTAL</span><span id="mental">1</span></div>
+          <div class="stat"><span>DISCIPLINE</span><span id="discipline">1</span></div>
+          <div class="stat"><span>AURA</span><span id="aura">1</span></div>
+        </div>
+        <div id="rpMessages" class="rp-messages"></div>
+      </section>
+    </div>
+    <div id="tab-artefacts" class="tab-panel">
+      <section id="artifacts">
+        <h2>💎 Collection d'Artefacts</h2>
+        <p class="intro">Les artefacts sont débloqués en atteignant certains jalons.</p>
+        <div id="badgesContainer" class="badges-grid"></div>
+      </section>
+    </div>
+    <div id="tab-grimoire" class="tab-panel">
+      <section id="history">
+        <h2>📖 Grimoire des Séances</h2>
+        <p class="intro">Historique de tes dernières aventures.</p>
+        <div id="historyContainer" class="history-grid"></div>
+      </section>
+    </div>
+    <section id="levelUpPopup" class="hidden"><div class="popup-content"><h2>LEVEL UP !</h2><p id="levelUpText"></p><button id="closePopup">OK</button></div></section>
+    <section id="badgePopup" class="hidden"><div class="popup-content"><h2>🏆 NOUVEL ARTEFACT !</h2><p id="badgePopupText"></p><button id="closeBadgePopup">OK</button></div></section>
+  </div>
+  <script src="app.js?v=4.0"></script>
+</body>
+</html>

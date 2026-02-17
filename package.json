@@ -1,0 +1,10 @@
+{
+  "name": "shadow-muscle",
+  "version": "1.0.0",
+  "description": "Shadow Muscle - PWA de coaching musculaire (Vanilla JS, zero dependencies)",
+  "main": "index.html",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "build": "true"
+  }
+}

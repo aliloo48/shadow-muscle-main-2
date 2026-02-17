@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Push Notifications - Shadow Muscle</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0a0612;
+            color: #00d9ff;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        h1 { color: #fff; text-shadow: 0 0 10px rgba(0,217,255,0.8); }
+        button {
+            background: linear-gradient(90deg, #ff3b30, #ff7a18);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+        button:hover { transform: scale(1.05); }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background: rgba(0,217,255,0.1);
+            color: #fff;
+            border: 1px solid rgba(0,217,255,0.3);
+            border-radius: 8px;
+        }
+        .output {
+            background: rgba(0,217,255,0.05);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #00d9ff;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔔 Test Web Push Notifications</h1>
+
+    <h2>1. Obtenir l'abonnement local</h2>
+    <button onclick="getLocalSubscription()">Afficher mon abonnement</button>
+    <textarea id="subOutput" readonly rows="8"></textarea>
+
+    <h2>2. Envoyer un test vers Netlify</h2>
+    <div>
+        <label>Titre:</label>
+        <input type="text" id="pushTitle" value="Test 🤖" style="width: 100%; padding: 8px; margin: 5px 0;">
+        
+        <label>Message:</label>
+        <input type="text" id="pushBody" value="Ceci est un test de notification push!" style="width: 100%; padding: 8px; margin: 5px 0;">
+        
+        <label>Endpoint Netlify (ex: https://shadow-muscle.netlify.app/):</label>
+        <input type="text" id="netlifyUrl" placeholder="Ton URL Netlify" style="width: 100%; padding: 8px; margin: 5px 0;">
+    </div>
+    <button onclick="sendPushTest()">Envoyer test push</button>
+
+    <h2>3. Logs</h2>
+    <div class="output" id="logs">En attente...</div>
+
+    <script>
+        function log(message) {
+            const logs = document.getElementById('logs');
+            logs.textContent += '\n' + new Date().toLocaleTimeString() + ' - ' + message;
+            logs.scrollTop = logs.scrollHeight;
+        }
+
+        async function getLocalSubscription() {
+            try {
+                const reg = await navigator.serviceWorker.ready;
+                const sub = await reg.pushManager.getSubscription();
+                if (sub) {
+                    document.getElementById('subOutput').value = JSON.stringify(sub, null, 2);
+                    log('✅ Abonnement trouvé');
+                    return sub;
+                } else {
+                    log('❌ Pas d\'abonnement. Clique sur "🔔 Notifications" dans l\'app d\'abord!');
+                }
+            } catch (e) {
+                log('❌ Erreur: ' + e.message);
+            }
+        }
+
+        async function sendPushTest() {
+            try {
+                const sub = await getLocalSubscription();
+                if (!sub) return;
+
+                const title = document.getElementById('pushTitle').value;
+                const body = document.getElementById('pushBody').value;
+                const netlifyUrl = document.getElementById('netlifyUrl').value;
+
+                if (!netlifyUrl) {
+                    log('❌ Entre ton URL Netlify!');
+                    return;
+                }
+
+                const endpoint = netlifyUrl.replace(/\/$/, '') + '/.netlify/functions/send-push';
+                
+                log(`📤 Envoi vers: ${endpoint}`);
+
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        subscriptions: [JSON.stringify(sub)],
+                        title,
+                        body
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    log('✅ Push envoyé! Réponse: ' + JSON.stringify(data));
+                } else {
+                    const error = await response.text();
+                    log('❌ Erreur HTTP ' + response.status + ': ' + error);
+                }
+            } catch (e) {
+                log('❌ Erreur: ' + e.message);
+            }
+        }
+
+        // Auto-log on load
+        window.onload = () => {
+            log('Page de test prête. Commence par obtenir ton abonnement.');
+        };
+    </script>
+</body>
+</html>

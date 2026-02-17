@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#09080a"/>
+      <stop offset="60%" stop-color="#070607"/>
+      <stop offset="100%" stop-color="#020202"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" x2="1">
+      <stop offset="0%" stop-color="#ff3b30" stop-opacity="0.0"/>
+      <stop offset="40%" stop-color="#ff5a3e" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#ff7a18" stop-opacity="0.12"/>
+    </linearGradient>
+    <filter id="grain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="1" stitchTiles="stitch" result="noise"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer>
+        <feFuncA type="table" tableValues="0 0.12"/>
+      </feComponentTransfer>
+      <feBlend in="SourceGraphic"/>
+    </filter>
+    <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="40" result="b" />
+      <feBlend in="SourceGraphic" in2="b" mode="screen" />
+    </filter>
+    <mask id="vignette">
+      <rect x="0" y="0" width="100%" height="100%" fill="url(#vign)"/>
+    </mask>
+    <radialGradient id="vign" cx="50%" cy="40%" r="75%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.06"/>
+      <stop offset="60%" stop-color="#000000" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="1"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Base dark gradient -->
+  <rect width="100%" height="100%" fill="url(#bgGrad)" />
+
+  <!-- Subtle red-orange accent sweep -->
+  <rect width="100%" height="100%" fill="url(#accent)" opacity="0.08"/>
+
+  <!-- Abstract shadowed spire shapes (cinematic silhouettes) -->
+  <g transform="translate(200,120) scale(1)">
+    <polygon points="200,900 320,360 380,360 460,900" fill="#000" opacity="0.18" />
+    <polygon points="420,900 520,420 560,420 660,900" fill="#000" opacity="0.14" />
+    <polygon points="80,900 160,300 210,300 280,900" fill="#000" opacity="0.12" />
+  </g>
+
+  <!-- Central light stroke -->
+  <rect x="40%" y="0" width="6%" height="100%" fill="rgba(255,80,60,0.03)" />
+
+  <!-- Soft glow over the top -->
+  <g filter="url(#softGlow)">
+    <ellipse cx="50%" cy="20%" rx="520" ry="220" fill="rgba(255,122,24,0.06)" />
+  </g>
+
+  <!-- Grain for texture -->
+  <rect width="100%" height="100%" filter="url(#grain)" opacity="0.06" />
+</svg>
