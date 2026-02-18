@@ -2269,3 +2269,19 @@ body::before {
   .badges-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
 }
 }
+
+
+/* Logic for Tabs - Hiding inactive panels */
+.tab-panel {
+    display: none !important;
+}
+
+.tab-panel.active {
+    display: block !important;
+    animation: fadeIn 0.4s ease forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
