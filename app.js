@@ -54,12 +54,21 @@ class ShadowMuscle {
     }
 
     setupTabs() {
+        // Active le bon panel au clic sur un onglet
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                const tab = btn.dataset.tab;
-                document.querySelectorAll('.tab-btn, .tab-panel').forEach(el => el.classList.remove('active'));
+                const tabId = 'tab-' + btn.dataset.tab;
+
+                // Retirer 'active' de tous les boutons
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                // Retirer 'active' de tous les panels
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+
+                // Ajouter 'active' au bouton cliqué
                 btn.classList.add('active');
-                document.getElementById(tab).classList.add('active');
+                // Ajouter 'active' au panel correspondant
+                const panel = document.getElementById(tabId);
+                if (panel) panel.classList.add('active');
             });
         });
     }
@@ -74,16 +83,19 @@ class ShadowMuscle {
     renderStatus() {
         const levelEl = document.getElementById('user-level');
         if (levelEl) levelEl.textContent = this.data.level;
-        
+
         const nextXP = this.data.level * 150;
         const percent = Math.min((this.data.xp / nextXP) * 100, 100);
         const fill = document.querySelector('.progress-fill');
         if (fill) fill.style.width = percent + '%';
-        
+
+        const xpEl = document.querySelector('.xp-text');
+        if (xpEl) xpEl.textContent = this.data.xp + ' / ' + nextXP + ' XP';
+
         const statsContainer = document.getElementById('stats-container');
         if (statsContainer) {
-            statsContainer.innerHTML = Object.entries(this.data.stats).map(([key, val]) => 
-                '<div class="stat-card"><div class="stat-label">' + key.toUpperCase() + '</div><div class="stat-value">' + val + '</div></div>'
+            statsContainer.innerHTML = Object.entries(this.data.stats).map(([key, val]) =>
+                `<div class="stat-item"><span class="stat-name">${key.toUpperCase()}</span><span class="stat-val">${val}</span></div>`
             ).join('');
         }
     }
@@ -91,9 +103,14 @@ class ShadowMuscle {
     renderPortails() {
         const container = document.getElementById('missions-container');
         if (container) {
-            container.innerHTML = this.MISSIONS.map(m => 
-                '<div class="mission-card"><div class="mission-info"><h3>' + m.title + '</h3><p>+' + m.xp + ' XP | +1 ' + m.stat + '</p></div>' +
-                '<button class="btn-action" onclick="app.completeMission(\'' + m.id + '\')">COMPLÉTER</button></div>'
+            container.innerHTML = this.MISSIONS.map(m =>
+                `<div class="mission-card">
+                    <div class="mission-info">
+                        <h3>${m.title}</h3>
+                        <span class="xp-badge">+${m.xp} XP</span>
+                    </div>
+                    <button class="complete-btn" onclick="app.completeMission('${m.id}')">COMPLÉTER</button>
+                </div>`
             ).join('');
         }
     }
@@ -103,8 +120,13 @@ class ShadowMuscle {
         if (container) {
             container.innerHTML = this.BADGES_DB.map(b => {
                 const owned = this.data.badges.includes(b.id);
-                return '<div class="artefact-card ' + (owned ? '' : 'locked') + '"><div class="artefact-icon">' + b.icon + '</div>' +
-                       '<div class="artefact-name">' + b.name + '</div><div class="artefact-desc">' + b.desc + '</div></div>';
+                return `<div class="badge-card ${owned ? 'owned' : 'locked'}">
+                    <span class="badge-icon">${b.icon}</span>
+                    <div class="badge-info">
+                        <span class="badge-name">${b.name}</span>
+                        <span class="badge-desc">${b.desc}</span>
+                    </div>
+                </div>`;
             }).join('');
         }
     }
@@ -112,19 +134,25 @@ class ShadowMuscle {
     renderGrimoire() {
         const container = document.getElementById('history-container');
         if (container) {
-            container.innerHTML = this.data.history.slice(-14).reverse().map(h => 
-                '<div class="history-item"><span>[' + h.date + ']</span><span>' + h.text + '</span><span style="color:var(--neon-blue)">+' + h.xp + ' XP</span></div>'
-            ).join('');
+            if (this.data.history.length === 0) {
+                container.innerHTML = '<p class="empty-history">Aucune aventure pour le moment. Lance-toi !</p>';
+            } else {
+                container.innerHTML = this.data.history.slice(-14).reverse().map(h =>
+                    `<div class="history-entry">
+                        <span class="history-date">[${h.date}]</span>
+                        <span class="history-text">${h.text}</span>
+                        <span class="history-xp">+${h.xp} XP</span>
+                    </div>`
+                ).join('');
+            }
         }
     }
 
     completeMission(id) {
         const m = this.MISSIONS.find(x => x.id === id);
         if (!m) return;
-
         this.data.xp += m.xp;
         this.data.stats[m.stat]++;
-        
         this.addHistory('Mission accomplie : ' + m.title, m.xp);
         this.checkLevelUp();
         this.checkBadges();
@@ -151,7 +179,6 @@ class ShadowMuscle {
             if (b.type === 'level' && this.data.level >= b.req) met = true;
             if (b.type === 'mission' && this.data.history.length >= b.req) met = true;
             if (b.type === 'streak' && this.data.streak >= b.req) met = true;
-            
             if (met) {
                 this.data.badges.push(b.id);
                 this.showRPMessage('NOUVEL ARTEFACT : ' + b.name + ' ! ' + b.icon);
@@ -179,7 +206,7 @@ class ShadowMuscle {
     showRPMessage(msg) {
         const div = document.createElement('div');
         div.className = 'rp-overlay';
-        div.innerHTML = '<div class="rp-box"><p>' + msg + '</p><button onclick="this.parentElement.parentElement.remove()">ACCEPTER</button></div>';
+        div.innerHTML = `<div class="rp-box"><p>${msg}</p><button onclick="this.closest('.rp-overlay').remove()">OK</button></div>`;
         document.body.appendChild(div);
     }
 
