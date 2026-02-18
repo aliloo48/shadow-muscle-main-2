@@ -35,12 +35,9 @@ class ShadowMuscle {
         ];
 
         this.MISSIONS = [
-            { id: 'pompes', title: '100 Pompes', xp: 40, stat: 'force' },
-            { id: 'squats', title: '100 Squats', xp: 40, stat: 'force' },
-            { id: 'abdos', title: '100 Abdos', xp: 40, stat: 'discipline' },
-            { id: 'run', title: '10km Course', xp: 100, stat: 'endurance' },
-            { id: 'lecture', title: 'Lecture 30min', xp: 30, stat: 'mental' },
-            { id: 'meditation', title: 'Méditation 10min', xp: 30, stat: 'aura' }
+            { id: 'medit', title: '30 min Méditation', xp: 30, stat: 'mental' },
+            { id: 'yoga', title: '30 min Yoga', xp: 35, stat: 'endurance' },
+            { id: 'squats', title: '200 Squats', xp: 70, stat: 'force' }
         ];
     }
 
@@ -54,19 +51,15 @@ class ShadowMuscle {
     }
 
     setupTabs() {
-        // Active le bon panel au clic sur un onglet
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                const tabId = 'tab-' + btn.dataset.tab;
+                const tabName = btn.dataset.tab;
+                const tabId = 'tab-' + tabName;
 
-                // Retirer 'active' de tous les boutons
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                // Retirer 'active' de tous les panels
                 document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
 
-                // Ajouter 'active' au bouton cliqué
                 btn.classList.add('active');
-                // Ajouter 'active' au panel correspondant
                 const panel = document.getElementById(tabId);
                 if (panel) panel.classList.add('active');
             });
@@ -81,69 +74,80 @@ class ShadowMuscle {
     }
 
     renderStatus() {
-        const levelEl = document.getElementById('user-level');
+        const levelEl = document.getElementById('currentLevel');
         if (levelEl) levelEl.textContent = this.data.level;
 
-        const nextXP = this.data.level * 150;
+        const rankEl = document.getElementById('rank');
+        if (rankEl) rankEl.textContent = this.getRankName(this.data.level);
+
+        const streakEl = document.getElementById('streakCount');
+        if (streakEl) streakEl.textContent = this.data.streak;
+
+        const nextXP = this.data.level * 500;
         const percent = Math.min((this.data.xp / nextXP) * 100, 100);
-        const fill = document.querySelector('.progress-fill');
+        const fill = document.getElementById('xpProgress');
         if (fill) fill.style.width = percent + '%';
 
-        const xpEl = document.querySelector('.xp-text');
-        if (xpEl) xpEl.textContent = this.data.xp + ' / ' + nextXP + ' XP';
+        const xpText = document.getElementById('xpText');
+        if (xpText) xpText.textContent = `${this.data.xp} / ${nextXP} XP`;
 
-        const statsContainer = document.getElementById('stats-container');
-        if (statsContainer) {
-            statsContainer.innerHTML = Object.entries(this.data.stats).map(([key, val]) =>
-                `<div class="stat-item"><span class="stat-name">${key.toUpperCase()}</span><span class="stat-val">${val}</span></div>`
-            ).join('');
+        // Stats
+        for (const [stat, val] of Object.entries(this.data.stats)) {
+            const el = document.getElementById(stat);
+            if (el) el.textContent = val;
         }
     }
 
+    getRankName(level) {
+        if (level >= 50) return 'S - Shadow Monarch';
+        if (level >= 30) return 'A - National';
+        if (level >= 15) return 'B - Élite';
+        if (level >= 5) return 'C - Chasseur';
+        return 'E - Débutant';
+    }
+
     renderPortails() {
-        const container = document.getElementById('missions-container');
-        if (container) {
-            container.innerHTML = this.MISSIONS.map(m =>
-                `<div class="mission-card">
-                    <div class="mission-info">
-                        <h3>${m.title}</h3>
-                        <span class="xp-badge">+${m.xp} XP</span>
-                    </div>
-                    <button class="complete-btn" onclick="app.completeMission('${m.id}')">COMPLÉTER</button>
-                </div>`
-            ).join('');
+        const dailyContainer = document.getElementById('dailyMissions');
+        if (dailyContainer) {
+            dailyContainer.innerHTML = this.MISSIONS.map(m => `
+                <div class="mission">
+                    <span>${m.title} <span class="xp-badge">+${m.xp} XP</span></span>
+                    <button onclick="app.completeMission('${m.id}')">COMPLÉTER</button>
+                </div>
+            `).join('');
         }
     }
 
     renderArtefacts() {
-        const container = document.getElementById('badges-container');
+        const container = document.getElementById('badgesContainer');
         if (container) {
             container.innerHTML = this.BADGES_DB.map(b => {
                 const owned = this.data.badges.includes(b.id);
-                return `<div class="badge-card ${owned ? 'owned' : 'locked'}">
-                    <span class="badge-icon">${b.icon}</span>
-                    <div class="badge-info">
-                        <span class="badge-name">${b.name}</span>
-                        <span class="badge-desc">${b.desc}</span>
+                return `
+                    <div class="badge-card ${owned ? '' : 'locked'}">
+                        <span class="badge-icon">${b.icon}</span>
+                        <div class="badge-info">
+                            <div class="badge-name">${b.name}</div>
+                            <div class="badge-desc">${b.desc}</div>
+                        </div>
                     </div>
-                </div>`;
+                `;
             }).join('');
         }
     }
 
     renderGrimoire() {
-        const container = document.getElementById('history-container');
+        const container = document.getElementById('historyContainer');
         if (container) {
             if (this.data.history.length === 0) {
-                container.innerHTML = '<p class="empty-history">Aucune aventure pour le moment. Lance-toi !</p>';
+                container.innerHTML = '<p class="intro">Aucun historique pour le moment.</p>';
             } else {
-                container.innerHTML = this.data.history.slice(-14).reverse().map(h =>
-                    `<div class="history-entry">
+                container.innerHTML = this.data.history.slice(-10).reverse().map(h => `
+                    <div class="history-day">
                         <span class="history-date">[${h.date}]</span>
-                        <span class="history-text">${h.text}</span>
-                        <span class="history-xp">+${h.xp} XP</span>
-                    </div>`
-                ).join('');
+                        <div class="history-stats">${h.text} | +${h.xp} XP</div>
+                    </div>
+                `).join('');
             }
         }
     }
@@ -151,24 +155,44 @@ class ShadowMuscle {
     completeMission(id) {
         const m = this.MISSIONS.find(x => x.id === id);
         if (!m) return;
+
         this.data.xp += m.xp;
         this.data.stats[m.stat]++;
         this.addHistory('Mission accomplie : ' + m.title, m.xp);
+        
         this.checkLevelUp();
         this.checkBadges();
         this.save();
         this.renderAll();
-        this.showRPMessage('Mission accomplie. Vous avez gagné ' + m.xp + ' XP et +1 en ' + m.stat + '.');
+        
+        this.showRPMessage(`Mission terminée. +${m.xp} XP gagnés.`);
+    }
+
+    addHistory(text, xp) {
+        const date = new Date().toLocaleDateString('fr-FR');
+        this.data.history.push({ date, text, xp });
     }
 
     checkLevelUp() {
-        const nextXP = this.data.level * 150;
+        const nextXP = this.data.level * 500;
         if (this.data.xp >= nextXP) {
-            this.data.level++;
             this.data.xp -= nextXP;
-            Object.keys(this.data.stats).forEach(s => this.data.stats[s] += 2);
-            this.showRPMessage('LEVEL UP ! Niveau ' + this.data.level + '. Vos limites ont été repoussées.');
-            this.checkLevelUp();
+            this.data.level++;
+            // Bonus de stats
+            for (const stat in this.data.stats) {
+                this.data.stats[stat] += 2;
+            }
+            this.showLevelUp(this.data.level);
+            this.checkLevelUp(); // Check encore si plusieurs niveaux gagnés
+        }
+    }
+
+    showLevelUp(level) {
+        const popup = document.getElementById('levelUpPopup');
+        const text = document.getElementById('levelUpText');
+        if (popup && text) {
+            text.textContent = `Niveau ${level} atteint ! Tes stats augmentent.`;
+            popup.classList.remove('hidden');
         }
     }
 
@@ -178,17 +202,20 @@ class ShadowMuscle {
             let met = false;
             if (b.type === 'level' && this.data.level >= b.req) met = true;
             if (b.type === 'mission' && this.data.history.length >= b.req) met = true;
-            if (b.type === 'streak' && this.data.streak >= b.req) met = true;
             if (met) {
                 this.data.badges.push(b.id);
-                this.showRPMessage('NOUVEL ARTEFACT : ' + b.name + ' ! ' + b.icon);
+                this.showBadgePopup(b);
             }
         });
     }
 
-    addHistory(text, xp) {
-        const date = new Date().toLocaleDateString('fr-FR');
-        this.data.history.push({ date, text, xp });
+    showBadgePopup(badge) {
+        const popup = document.getElementById('badgePopup');
+        const text = document.getElementById('badgePopupText');
+        if (popup && text) {
+            text.innerHTML = `Artefact Débloqué : ${badge.icon} ${badge.name}<br>${badge.desc}`;
+            popup.classList.remove('hidden');
+        }
     }
 
     save() {
@@ -204,13 +231,39 @@ class ShadowMuscle {
     }
 
     showRPMessage(msg) {
-        const div = document.createElement('div');
-        div.className = 'rp-overlay';
-        div.innerHTML = `<div class="rp-box"><p>${msg}</p><button onclick="this.closest('.rp-overlay').remove()">OK</button></div>`;
-        document.body.appendChild(div);
+        const container = document.getElementById('rpMessages');
+        if (container) {
+            container.innerHTML = `<p class="rp-message">${msg}</p>`;
+        }
     }
 
-    setupEventListeners() {}
+    setupEventListeners() {
+        const closeLevel = document.getElementById('closePopup');
+        if (closeLevel) closeLevel.onclick = () => document.getElementById('levelUpPopup').classList.add('hidden');
+
+        const closeBadge = document.getElementById('closeBadgePopup');
+        if (closeBadge) closeBadge.onclick = () => document.getElementById('badgePopup').classList.add('hidden');
+
+        const addBtn = document.getElementById('addMission');
+        if (addBtn) {
+            addBtn.onclick = () => {
+                const input = document.getElementById('newMission');
+                if (input && input.value) {
+                    this.completeMissionCustom(input.value);
+                    input.value = '';
+                }
+            };
+        }
+    }
+
+    completeMissionCustom(name) {
+        this.data.xp += 50;
+        this.addHistory('Mission Perso : ' + name, 50);
+        this.checkLevelUp();
+        this.save();
+        this.renderAll();
+        this.showRPMessage('Mission personnalisée terminée. +50 XP.');
+    }
 
     requestNotify() {
         if ("Notification" in window && Notification.permission === "default") {
