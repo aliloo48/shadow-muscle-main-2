@@ -35,9 +35,16 @@ class ShadowMuscle {
         ];
 
         this.MISSIONS = [
-            { id: 'medit', title: '30 min Méditation', xp: 30, stat: 'mental' },
-            { id: 'yoga', title: '30 min Yoga', xp: 35, stat: 'endurance' },
-            { id: 'squats', title: '200 Squats', xp: 70, stat: 'force' }
+            { id: 'pompes', title: '100 Pompes', xp: 120, stat: 'force' },
+            { id: 'squats', title: '200 Squats', xp: 110, stat: 'endurance' },
+            { id: 'shadow_boxing', title: '15 min Shadow Boxing', xp: 130, stat: 'aura' },
+            { id: 'tractions', title: '50 Tractions', xp: 150, stat: 'force' },
+            { id: 'abdos', title: '150 Abdominaux', xp: 100, stat: 'discipline' },
+            { id: 'course', title: '5 km Course', xp: 140, stat: 'endurance' },
+            { id: 'dips', title: '80 Dips', xp: 115, stat: 'force' },
+            { id: 'gainage', title: '5 min Gainage', xp: 90, stat: 'mental' },
+            { id: 'burpees', title: '50 Burpees', xp: 135, stat: 'endurance' },
+            { id: 'meditation', title: '20 min Méditation', xp: 80, stat: 'mental' }
         ];
     }
 
@@ -55,10 +62,8 @@ class ShadowMuscle {
             btn.addEventListener('click', () => {
                 const tabName = btn.dataset.tab;
                 const tabId = 'tab-' + tabName;
-
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                 document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-
                 btn.classList.add('active');
                 const panel = document.getElementById(tabId);
                 if (panel) panel.classList.add('active');
@@ -91,7 +96,6 @@ class ShadowMuscle {
         const xpText = document.getElementById('xpText');
         if (xpText) xpText.textContent = `${this.data.xp} / ${nextXP} XP`;
 
-        // Stats
         for (const [stat, val] of Object.entries(this.data.stats)) {
             const el = document.getElementById(stat);
             if (el) el.textContent = val;
@@ -102,7 +106,7 @@ class ShadowMuscle {
         if (level >= 50) return 'S - Shadow Monarch';
         if (level >= 30) return 'A - National';
         if (level >= 15) return 'B - Élite';
-        if (level >= 5) return 'C - Chasseur';
+        if (level >= 5)  return 'C - Chasseur';
         return 'E - Débutant';
     }
 
@@ -112,7 +116,7 @@ class ShadowMuscle {
             dailyContainer.innerHTML = this.MISSIONS.map(m => `
                 <div class="mission">
                     <span>${m.title} <span class="xp-badge">+${m.xp} XP</span></span>
-                    <button onclick="app.completeMission('${m.id}')">COMPLÉTER</button>
+                    <button class="mission-btn" onclick="app.completeMission('${m.id}')">COMPLÉTER</button>
                 </div>
             `).join('');
         }
@@ -126,10 +130,8 @@ class ShadowMuscle {
                 return `
                     <div class="badge-card ${owned ? '' : 'locked'}">
                         <span class="badge-icon">${b.icon}</span>
-                        <div class="badge-info">
-                            <div class="badge-name">${b.name}</div>
-                            <div class="badge-desc">${b.desc}</div>
-                        </div>
+                        <div class="badge-name">${b.name}</div>
+                        <div class="badge-desc">${b.desc}</div>
                     </div>
                 `;
             }).join('');
@@ -140,12 +142,12 @@ class ShadowMuscle {
         const container = document.getElementById('historyContainer');
         if (container) {
             if (this.data.history.length === 0) {
-                container.innerHTML = '<p class="intro">Aucun historique pour le moment.</p>';
+                container.innerHTML = '<p style="color:rgba(255,255,255,0.4);text-align:center;">Aucun historique pour le moment.</p>';
             } else {
                 container.innerHTML = this.data.history.slice(-10).reverse().map(h => `
-                    <div class="history-day">
-                        <span class="history-date">[${h.date}]</span>
-                        <div class="history-stats">${h.text} | +${h.xp} XP</div>
+                    <div class="history-day success">
+                        <span class="history-date">[${h.date}] ${h.text}</span>
+                        <span>+${h.xp} XP</span>
                     </div>
                 `).join('');
             }
@@ -155,16 +157,13 @@ class ShadowMuscle {
     completeMission(id) {
         const m = this.MISSIONS.find(x => x.id === id);
         if (!m) return;
-
         this.data.xp += m.xp;
         this.data.stats[m.stat]++;
         this.addHistory('Mission accomplie : ' + m.title, m.xp);
-        
         this.checkLevelUp();
         this.checkBadges();
         this.save();
         this.renderAll();
-        
         this.showRPMessage(`Mission terminée. +${m.xp} XP gagnés.`);
     }
 
@@ -178,12 +177,11 @@ class ShadowMuscle {
         if (this.data.xp >= nextXP) {
             this.data.xp -= nextXP;
             this.data.level++;
-            // Bonus de stats
             for (const stat in this.data.stats) {
                 this.data.stats[stat] += 2;
             }
             this.showLevelUp(this.data.level);
-            this.checkLevelUp(); // Check encore si plusieurs niveaux gagnés
+            this.checkLevelUp();
         }
     }
 
@@ -257,12 +255,12 @@ class ShadowMuscle {
     }
 
     completeMissionCustom(name) {
-        this.data.xp += 50;
-        this.addHistory('Mission Perso : ' + name, 50);
+        this.data.xp += 100;
+        this.addHistory('Mission Perso : ' + name, 100);
         this.checkLevelUp();
         this.save();
         this.renderAll();
-        this.showRPMessage('Mission personnalisée terminée. +50 XP.');
+        this.showRPMessage('Mission personnalisée terminée. +100 XP.');
     }
 
     requestNotify() {
