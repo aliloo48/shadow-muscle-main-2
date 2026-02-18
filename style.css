@@ -2269,7 +2269,7 @@ body::before {
   .status-card { grid-template-columns: 1fr; }
   .badges-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
 }
-}
+
 
 
 /* Logic for Tabs - Hiding inactive panels */
