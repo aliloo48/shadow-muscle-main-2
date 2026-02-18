@@ -2,7 +2,6 @@
  * SHADOW MUSCLE - SYSTEM ENGINE v4.0
  * Thème : Solo Leveling / RPG
  */
-
 class ShadowMuscle {
     constructor() {
         this.initData();
@@ -24,7 +23,6 @@ class ShadowMuscle {
                 history: []
             };
         }
-
         this.BADGES_DB = [
             { id: 'first_step', name: 'Éveil', desc: 'Première mission complétée', icon: '⚔️', type: 'mission', req: 1 },
             { id: 'bronze_rank', name: 'Rank E', desc: 'Atteindre le niveau 5', icon: '🥉', type: 'level', req: 5 },
@@ -33,18 +31,30 @@ class ShadowMuscle {
             { id: 'shadow_lord', name: 'Monarque', desc: 'Atteindre le niveau 50', icon: '👑', type: 'level', req: 50 },
             { id: 'consistent', name: 'Régularité', desc: 'Série de 7 jours', icon: '🔥', type: 'streak', req: 7 }
         ];
-
         this.MISSIONS = [
-            { id: 'pompes', title: '100 Pompes', xp: 120, stat: 'force' },
-            { id: 'squats', title: '200 Squats', xp: 110, stat: 'endurance' },
-            { id: 'shadow_boxing', title: '15 min Shadow Boxing', xp: 130, stat: 'aura' },
-            { id: 'tractions', title: '50 Tractions', xp: 150, stat: 'force' },
-            { id: 'abdos', title: '150 Abdominaux', xp: 100, stat: 'discipline' },
-            { id: 'course', title: '5 km Course', xp: 140, stat: 'endurance' },
-            { id: 'dips', title: '80 Dips', xp: 115, stat: 'force' },
-            { id: 'gainage', title: '5 min Gainage', xp: 90, stat: 'mental' },
-            { id: 'burpees', title: '50 Burpees', xp: 135, stat: 'endurance' },
-            { id: 'meditation', title: '20 min Méditation', xp: 80, stat: 'mental' }
+            // === BOXE ===
+            { id: 'shadow_boxing', title: '15 min Shadow Boxing', xp: 200, stat: 'aura' },
+            { id: 'sac_de_frappe', title: '3 rounds Sac de Frappe (3 min)', xp: 220, stat: 'aura' },
+            { id: 'corde_a_sauter', title: '10 min Corde à Sauter', xp: 180, stat: 'endurance' },
+            // === MUSCU HAUT DU CORPS ===
+            { id: 'pompes', title: '100 Pompes', xp: 200, stat: 'force' },
+            { id: 'tractions', title: '50 Tractions', xp: 250, stat: 'force' },
+            { id: 'dips', title: '80 Dips (triceps)', xp: 210, stat: 'force' },
+            { id: 'developpe_couche', title: '4x10 Développé Couché', xp: 230, stat: 'force' },
+            { id: 'tirage_vertical', title: '4x12 Tirage Vertical', xp: 220, stat: 'force' },
+            { id: 'rowing_haltere', title: '4x10 Rowing Haltère', xp: 215, stat: 'force' },
+            // === MUSCU BAS DU CORPS ===
+            { id: 'squats', title: '4x15 Squats Barre', xp: 230, stat: 'endurance' },
+            { id: 'fentes', title: '3x12 Fentes Marchées', xp: 200, stat: 'endurance' },
+            { id: 'mollets', title: '4x20 Extensions Mollets', xp: 170, stat: 'endurance' },
+            // === ABDOS & GAINAGE ===
+            { id: 'abdos', title: '150 Abdominaux', xp: 180, stat: 'discipline' },
+            { id: 'gainage', title: '5 min Gainage Total', xp: 175, stat: 'mental' },
+            { id: 'russian_twist', title: '3x20 Russian Twist', xp: 170, stat: 'discipline' },
+            // === CARDIO ===
+            { id: 'course', title: '5 km Course', xp: 240, stat: 'endurance' },
+            { id: 'burpees', title: '50 Burpees', xp: 220, stat: 'endurance' },
+            { id: 'hiit', title: '20 min HIIT', xp: 250, stat: 'endurance' }
         ];
     }
 
@@ -81,21 +91,16 @@ class ShadowMuscle {
     renderStatus() {
         const levelEl = document.getElementById('currentLevel');
         if (levelEl) levelEl.textContent = this.data.level;
-
         const rankEl = document.getElementById('rank');
         if (rankEl) rankEl.textContent = this.getRankName(this.data.level);
-
         const streakEl = document.getElementById('streakCount');
         if (streakEl) streakEl.textContent = this.data.streak;
-
         const nextXP = this.data.level * 500;
         const percent = Math.min((this.data.xp / nextXP) * 100, 100);
         const fill = document.getElementById('xpProgress');
         if (fill) fill.style.width = percent + '%';
-
         const xpText = document.getElementById('xpText');
         if (xpText) xpText.textContent = `${this.data.xp} / ${nextXP} XP`;
-
         for (const [stat, val] of Object.entries(this.data.stats)) {
             const el = document.getElementById(stat);
             if (el) el.textContent = val;
@@ -106,7 +111,7 @@ class ShadowMuscle {
         if (level >= 50) return 'S - Shadow Monarch';
         if (level >= 30) return 'A - National';
         if (level >= 15) return 'B - Élite';
-        if (level >= 5)  return 'C - Chasseur';
+        if (level >= 5) return 'C - Chasseur';
         return 'E - Débutant';
     }
 
@@ -238,10 +243,8 @@ class ShadowMuscle {
     setupEventListeners() {
         const closeLevel = document.getElementById('closePopup');
         if (closeLevel) closeLevel.onclick = () => document.getElementById('levelUpPopup').classList.add('hidden');
-
         const closeBadge = document.getElementById('closeBadgePopup');
         if (closeBadge) closeBadge.onclick = () => document.getElementById('badgePopup').classList.add('hidden');
-
         const addBtn = document.getElementById('addMission');
         if (addBtn) {
             addBtn.onclick = () => {
@@ -255,12 +258,12 @@ class ShadowMuscle {
     }
 
     completeMissionCustom(name) {
-        this.data.xp += 100;
-        this.addHistory('Mission Perso : ' + name, 100);
+        this.data.xp += 150;
+        this.addHistory('Mission Perso : ' + name, 150);
         this.checkLevelUp();
         this.save();
         this.renderAll();
-        this.showRPMessage('Mission personnalisée terminée. +100 XP.');
+        this.showRPMessage('Mission personnalisée terminée. +150 XP.');
     }
 
     requestNotify() {
@@ -269,5 +272,4 @@ class ShadowMuscle {
         }
     }
 }
-
 const app = new ShadowMuscle();
