@@ -2285,4 +2285,11 @@ body::before {
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
+    
+/* Fix: sections visibles dans les panels actifs */
+.tab-panel.active section {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    animation: none !important;
+}
 }
